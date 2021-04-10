@@ -1,5 +1,4 @@
 import gui_client
-#import gui_login
 
 def main():
     gui_client.Gui_Client()
