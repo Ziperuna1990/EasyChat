@@ -1,5 +1,6 @@
 import tkinter as tk
 import socketio
+import info_client
 
 sio = socketio.Client()
 
@@ -8,7 +9,11 @@ PORT=":8000"
 
 class Gui_Client:
     window = tk.Tk()
+    current_user = info_client.Client()
+
     client_is_connected = False
+    UserIsLogined = False
+
     #Buttons
     ConnectionButton = tk.Button(window, text="connect", height="2", width="10")
     DisconnectButton = tk.Button(window, text="disconnect", height="2", width="10")
@@ -28,6 +33,23 @@ class Gui_Client:
     LoginSubMenuWidget =tk.Menu(MenuWidget)
 
     #function for button
+    def LoginUser(self):
+        sid_buf = sio.sid
+        print(sid_buf)
+
+        if self.UserIsLogined == False :
+            self.current_user.SetName("Andru")
+            self.current_user.SetLogin("peoly")
+            self.current_user.SetSid(sid_buf)
+            self.UserIsLogined = True
+
+        message = str("User is Logined # " + self.current_user.sid)
+
+        Gui_Client.ChatTextPlace.config(state=tk.NORMAL)
+        self.ChatTextPlace.insert(tk.END, message)
+        self.ChatTextPlace.insert(tk.END, '\n')
+        Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
+
     def ConnectionToServer(self):
         if self.client_is_connected == True:
             print("LOGS # now is connected !!! ")
@@ -47,6 +69,7 @@ class Gui_Client:
             self.DisconnectButton.config(state=tk.DISABLED)
         else: print("LOGS # now is deisconnected !!! ")
         self.client_is_connected = False
+        self.UserIsLogined = False
        # print(id_client + " # is disconnected # ")
         #print("BUTTON is clicked!!!")
 
@@ -61,7 +84,7 @@ class Gui_Client:
     def SendMasseges(self):
         if self.client_is_connected == True:
            message_body = self.EntryMsgPlace.get()
-           sio.emit('message' , message_body)
+           sio.emit('message' , [self.current_user.nick_name , message_body])
 
            self.EntryMsgPlace.delete(0 , 'end')
         else :
@@ -131,10 +154,11 @@ class Gui_Client:
 
         self.CloseSubMenuWidget.add_command(label = "Close" , command = lambda : self.ClosedMainWindow())
 
-        self.LoginSubMenuWidget.add_command(label = "Login")
+        self.LoginSubMenuWidget.add_command(label = "Login" , command = lambda : self.LoginUser())
 
         self.MenuWidget.add_cascade(label = "Connection" , menu = self.SubMenuWidget)
         self.MenuWidget.add_cascade(label = "Close Chat" , menu = self.CloseSubMenuWidget)
+        self.MenuWidget.add_cascade(label = "Logins" , menu = self.LoginSubMenuWidget)
 
         self.window.config(menu = self.MenuWidget)
         self.window.mainloop()

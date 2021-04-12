@@ -4,17 +4,25 @@ class Client :
     nick_name = str()
     sid = str()
 
-    def __init__(self , login , name , sid ):
+    def SetLogin(self , login):
         self.login = login
-        self.sid = sid
+
+    def SetName(self , name):
         self.nick_name = name
 
+    def SetSid(self , sid):
+        self.sid = sid
 
-class ClientManager :
-    array_clients = []
+    def PrintClientInfo(self):
+        print(self.nick_name , " # " , self.sid)
 
-    def AddNewClient(self):
-        self.array_clients.append(Client)
 
-    def GetArrayClients(self):
-        return self.array_clients
+    def __init__(self , login=None , name=None , sid=None ):
+        if sid != None :
+            self.login = login
+            self.sid = sid
+            self.nick_name = name
+        else :
+            login = None
+            name = None
+            sid = None
