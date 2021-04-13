@@ -14,17 +14,20 @@ class Gui_Client:
     client_is_connected = False
     UserIsLogined = False
 
+    #ListBox
+    ListBoxUsers = tk.Listbox(window , height = "25" ,  width = "20")
+
     #Buttons
-    ConnectionButton = tk.Button(window, text="connect", height="2", width="10")
-    DisconnectButton = tk.Button(window, text="disconnect", height="2", width="10")
-    QuitButton = tk.Button(window, text="Quit", height="2", width="10" , command=quit)
-    SendButton = tk.Button(window , text="Send" , height="2", width="10")
+    ConnectionButton = tk.Button(window, text="connect", height="2", width="15")
+    DisconnectButton = tk.Button(window, text="disconnect", height="2", width="15")
+    QuitButton = tk.Button(window, text="Quit", height="2", width="15" , command=quit)
+    SendButton = tk.Button(window , text="Send" , height="2", width="15")
 
     #Entry widgets
-    EntryMsgPlace = tk.Entry(window, width="30")
+    EntryMsgPlace = tk.Entry(window, width = "30")
 
     #Text widget
-    ChatTextPlace = tk.Text(window , width="35 " , height="30")
+    ChatTextPlace = tk.Text(window , width = "40" , height="33")
 
     #Menu
     MenuWidget = tk.Menu(window)
@@ -35,13 +38,18 @@ class Gui_Client:
     #function for button
     def LoginUser(self):
         sid_buf = sio.sid
-        print(sid_buf)
+        login_window = tk.Toplevel(self.window)
+        login_window.geometry("300x300")
+
 
         if self.UserIsLogined == False :
             self.current_user.SetName("Andru")
             self.current_user.SetLogin("peoly")
             self.current_user.SetSid(sid_buf)
             self.UserIsLogined = True
+
+            #Send User Name for added in ListBox for all clients
+            sio.emit('login' , self.current_user.nick_name)
 
         message = str("User is Logined # " + self.current_user.sid)
 
@@ -57,6 +65,7 @@ class Gui_Client:
             sio.connect("http://" + HOST + PORT)
             self.ConnectionButton.config(state=tk.DISABLED)
             self.DisconnectButton.config(state=tk.NORMAL)
+            self.LoginUser()
 
         self.client_is_connected = True
         #print(sio.sid + " # SID # ")
@@ -64,6 +73,7 @@ class Gui_Client:
     def DisconnectionServer(self):
         if self.client_is_connected != True:
             id_client = sio.sid
+            sio.emit('logout', self.current_user.nick_name)
             sio.disconnect()
             self.ConnectionButton.config(state=tk.NORMAL)
             self.DisconnectButton.config(state=tk.DISABLED)
@@ -122,14 +132,28 @@ class Gui_Client:
         Gui_Client.ChatTextPlace.insert(tk.END, '\n')
         Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
 
+    @sio.on('recive_login')
+    def GetLoginInfo(data):
+        Gui_Client.ListBoxUsers.insert(tk.END, data)
+
+    @sio.on('recive_logout')
+    def GetLogoutInfo(data):
+        for i in range(Gui_Client.ListBoxUsers.size()):
+           if Gui_Client.ListBoxUsers.get(i) == data:
+               Gui_Client.ListBoxUsers.delete(i)
+
+
     def __init__(self):
-        self.window.geometry("300x600")
+        self.window.geometry("600x600")
         self.window.resizable(0 , 0)
+        self.window.configure(bg='gray74')
         self.window.title("Test of Client!!!")
+
+        Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
 
         #Buttons positions
         self.ConnectionButton.config(command=lambda : self.ConnectionToServer())
-        self.ConnectionButton.place(x = 100 , y = 500)
+        self.ConnectionButton.place(x = 150 , y = 500)
 
         self.DisconnectButton.place(x = 0 , y = 500)
         self.DisconnectButton.config(state=tk.DISABLED)
@@ -138,7 +162,7 @@ class Gui_Client:
         self.QuitButton.place(x = 0 , y = 540)
         self.QuitButton.config(command=lambda : self.ClosedMainWindow())
 
-        self.SendButton.place(x = 100 , y = 540)
+        self.SendButton.place(x = 150 , y = 540)
         self.SendButton.config(command = lambda : self.SendMasseges())
         #Entry
         self.EntryMsgPlace.place(x = 0 , y = 465 )
@@ -147,6 +171,9 @@ class Gui_Client:
         self.ChatTextPlace.place(x = 10 , y = 10)
        # self.ChatTextPlace.insert(tk.INSERT , "HELLO")
         #self.ChatTextPlace.config(state = tk.DISABLED)
+
+        #ListBox
+        self.ListBoxUsers.place(x = 300 , y = 10)
 
         #Menu
         self.SubMenuWidget.add_command(label="Connection", command=lambda: self.ConnectionToServer())

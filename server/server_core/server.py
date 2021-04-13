@@ -18,9 +18,19 @@ def disconnect(sid):
 #get message from client and recive from all clients
 @sio.on('message')
 def get_message_from_client(sid , data=[]):
-    print("Client SID > " + sid )
+    print("### LOGS ### " + sid + " - " + data[0] + " - " + data[1])
     #print(data)
     sio.emit('recive_message' , data[0] + " -> " + data[1])
+
+@sio.on('login')
+def get_login_info(sid , data):
+    print("### LOGS ### " + sid + " - " + data + " # login")
+    sio.emit('recive_login' , data)
+
+@sio.on('logout')
+def get_logout_info(sid , data):
+    print("### LOGS ### " + sid + " - " + data + " # logout")
+    sio.emit('recive_logout', data)
 
 #start gunicorn server <gunicorn :8000 --threads 50 server:app >
 
