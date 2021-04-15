@@ -1,7 +1,13 @@
-import gui_client
+#import gui_client
+import autorization
+import tkinter as tk
 
 def main():
-    gui_client.Gui_Client()
+    app = autorization.WindowManager()
+    app.root.mainloop()
+
+
+
 
 if __name__ == "__main__":
     main()

@@ -46,23 +46,3 @@ class ClientsDB :
 
 
 
-
-def main():
-    db = ClientsDB()
-    #db.ConnectToDB()
-
-    user = User.Client()
-    user.sid = "12345"
-    user.nick_name = "MAx"
-    user.login = "login"
-    user.password = "pass"
-    user.user_id = "16"
-
-    #db.AddInfoToDB(user)
-    #db.GetInfoDB()
-    #db.DeleteAllDataDB()
-    #db.GetInfoDB()
-
-
-if __name__ == "__main__":
-    main()

@@ -1,6 +1,8 @@
 import tkinter as tk
+from tkinter import messagebox
 import socketio
 import info_client
+from PIL import Image, ImageTk
 
 sio = socketio.Client()
 
@@ -9,10 +11,11 @@ PORT=":8000"
 
 class Gui_Client:
     window = tk.Tk()
+
     current_user = info_client.Client()
 
     client_is_connected = False
-    UserIsLogined = False
+
 
     #ListBox
     ListBoxUsers = tk.Listbox(window , height = "25" ,  width = "20")
@@ -32,15 +35,10 @@ class Gui_Client:
     #Menu
     MenuWidget = tk.Menu(window)
     SubMenuWidget = tk.Menu(MenuWidget)
-    CloseSubMenuWidget = tk.Menu(MenuWidget)
-    LoginSubMenuWidget =tk.Menu(MenuWidget)
 
     #function for button
-    def LoginUser(self):
+    def LoginUser(self):  # Function For Login window in Chat
         sid_buf = sio.sid
-        login_window = tk.Toplevel(self.window)
-        login_window.geometry("300x300")
-
 
         if self.UserIsLogined == False :
             self.current_user.SetName("Andru")
@@ -48,7 +46,6 @@ class Gui_Client:
             self.current_user.SetSid(sid_buf)
             self.UserIsLogined = True
 
-            #Send User Name for added in ListBox for all clients
             sio.emit('login' , self.current_user.nick_name)
 
         message = str("User is Logined # " + self.current_user.sid)
@@ -58,7 +55,18 @@ class Gui_Client:
         self.ChatTextPlace.insert(tk.END, '\n')
         Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
 
-    def ConnectionToServer(self):
+
+        #self.registration_window.mainloop()
+
+    def on_close(self): # Function for Closed Button
+        if self.client_is_connected:
+            id_client = sio.sid
+            sio.disconnect()
+            print(id_client + " # is disconnected # ")
+        self.window.destroy()
+
+
+    def ConnectionToServer(self): # Function Connection to the server
         if self.client_is_connected == True:
             print("LOGS # now is connected !!! ")
         else :
@@ -68,9 +76,8 @@ class Gui_Client:
             self.LoginUser()
 
         self.client_is_connected = True
-        #print(sio.sid + " # SID # ")
 
-    def DisconnectionServer(self):
+    def DisconnectionServer(self): # Function for Disconnection from server
         if self.client_is_connected != True:
             id_client = sio.sid
             sio.emit('logout', self.current_user.nick_name)
@@ -80,10 +87,8 @@ class Gui_Client:
         else: print("LOGS # now is deisconnected !!! ")
         self.client_is_connected = False
         self.UserIsLogined = False
-       # print(id_client + " # is disconnected # ")
-        #print("BUTTON is clicked!!!")
 
-    def ClosedMainWindow(self):
+    def ClosedMainWindow(self): # Function For Closed window
         if self.client_is_connected :
            id_client = sio.sid
            sio.disconnect()
@@ -91,7 +96,7 @@ class Gui_Client:
 
         self.window.quit()
 
-    def SendMasseges(self):
+    def SendMasseges(self): # Function for recive message to server
         if self.client_is_connected == True:
            message_body = self.EntryMsgPlace.get()
            sio.emit('message' , [self.current_user.nick_name , message_body])
@@ -142,6 +147,11 @@ class Gui_Client:
            if Gui_Client.ListBoxUsers.get(i) == data:
                Gui_Client.ListBoxUsers.delete(i)
 
+    # Functions for Registration window
+    def CancelRegistrationButton(self):
+        print("adad")
+       # self.registration_window.destroy()
+
 
     def __init__(self):
         self.window.geometry("600x600")
@@ -169,8 +179,6 @@ class Gui_Client:
 
         #Text
         self.ChatTextPlace.place(x = 10 , y = 10)
-       # self.ChatTextPlace.insert(tk.INSERT , "HELLO")
-        #self.ChatTextPlace.config(state = tk.DISABLED)
 
         #ListBox
         self.ListBoxUsers.place(x = 300 , y = 10)
@@ -179,16 +187,10 @@ class Gui_Client:
         self.SubMenuWidget.add_command(label="Connection", command=lambda: self.ConnectionToServer())
         self.SubMenuWidget.add_command(label = "disconnect" , command = lambda : self.DisconnectionServer())
 
-        self.CloseSubMenuWidget.add_command(label = "Close" , command = lambda : self.ClosedMainWindow())
-
-        self.LoginSubMenuWidget.add_command(label = "Login" , command = lambda : self.LoginUser())
-
         self.MenuWidget.add_cascade(label = "Connection" , menu = self.SubMenuWidget)
-        self.MenuWidget.add_cascade(label = "Close Chat" , menu = self.CloseSubMenuWidget)
-        self.MenuWidget.add_cascade(label = "Logins" , menu = self.LoginSubMenuWidget)
 
         self.window.config(menu = self.MenuWidget)
-        self.window.mainloop()
 
-
+        self.window.protocol('WM_DELETE_WINDOW',lambda : self.on_close())
+       # self.window.mainloop()
 
