@@ -25,12 +25,7 @@ class Client :
         print(self.nick_name , " # " , self.sid)
 
 
-    def __init__(self , login=None , name=None , sid=None ):
-        if sid != None :
-            self.login = login
-            self.sid = sid
-            self.nick_name = name
-        else :
-            login = None
-            name = None
-            sid = None
+    def __init__(self , name=None , login=None , password = None):
+        self.nick_name = name
+        self.login = login
+        self.password = password

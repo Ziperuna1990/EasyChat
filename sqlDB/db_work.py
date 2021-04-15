@@ -33,12 +33,56 @@ class ClientsDB :
         print(all_result)
         return all_result
 
+    def GetNameDB(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT nickname_user FROM User")
+        all_result = cursor.fetchall()
+        print(all_result)
+        return all_result
+
+    def GetAllLogins(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT login_user FROM User")
+        all_result = cursor.fetchall()
+        print(all_result)
+        return all_result
+
     def DeleteAllDataDB(self):
         cursor = self.conn.cursor()
         sql = 'DELETE FROM User'
         cursor.execute(sql)
         self.conn.commit()
 
+    def GetIdFromName(self , nick_name):
+        cursor = self.conn.cursor()
+        sql = "SELECT user_id FROM User WHERE nickname_user = ?"
+        cursor.execute(sql, (nick_name,))
+        all_result = cursor.fetchall()
+        print(all_result)
+        return all_result
+
+    def GetIdUser(self):
+        cursor = self.conn.cursor()
+        sql = "SELECT user_id FROM User"
+        cursor.execute(sql)
+        all_result = cursor.fetchall()
+        print(all_result)
+        return all_result
+
+    def GetColUser(self):
+        cursor = self.conn.cursor()
+        sql = "SELECT * FROM USER"
+        cursor.execute(sql)
+        all_result = cursor.fetchall()
+        print(len(all_result))
+        return len(all_result)
+
+    def GetAllPasswords(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT password_user FROM User")
+        all_result = cursor.fetchall()
+        print(all_result)
+        return all_result
 
     def __init__(self):
         self.ConnectToDB()
@@ -46,3 +90,9 @@ class ClientsDB :
 
 
 
+def main():
+    db = ClientsDB()
+    db.GetAllLogins()
+
+if __name__ == "__main__":
+    main()
