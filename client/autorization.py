@@ -2,14 +2,17 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import font as tkfont
 from PIL import Image, ImageTk
+import gui_client
 
 import info_client as user
 import sqlDB.db_work as db
 
+path = r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"
 
 class WindowManager():
     root = tk.Tk()
-    image_reg = ImageTk.PhotoImage(Image.open(r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"))
+    #image_reg = ImageTk.PhotoImage(Image.open(r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"))
+    image_reg = tk.PhotoImage(master = root, file = path)
 
     def LoginPage(self):
         new_frame = AutorizetionWindow(master=self.root, image=self.image_reg , app=self)
@@ -25,6 +28,19 @@ class WindowManager():
         self._frame = new_frame
         self._frame.pack(fill=tk.BOTH, expand=1)
 
+    def DestroyWindow(self):
+        new_frame = RegistrationWindow(master=self.root, image=self.image_reg, app=self)
+        self.root.destroy()
+
+    def ChatWindow(self):
+        self.root.geometry("800x800")
+        new_frame = gui_client.Gui_Client(master=self.root, image=self.image_reg, app=self)
+        if self._frame is not None:
+            self._frame.destroy()
+        self._frame = new_frame
+        self._frame.pack(fill=tk.BOTH, expand=1)
+
+
     def __init__(self):
         self.root.geometry("300x520")
         self.root.resizable(0, 0)
@@ -38,6 +54,7 @@ class WindowManager():
 
 
         self.LoginPage()
+        #self.root.mainloop()
 
 class AutorizetionWindow(tk.Frame):
     # auto_window = tk.Tk()
@@ -78,6 +95,7 @@ class AutorizetionWindow(tk.Frame):
         if login_access == True:
             if password_access == True :
                 msg = messagebox.showinfo("Autorizated!!!" , "correct access!!!")
+                self.app.ChatWindow()
 
 
     def GoRegistration(self):
