@@ -13,6 +13,14 @@ class WindowManager():
     root = tk.Tk()
     #image_reg = ImageTk.PhotoImage(Image.open(r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"))
     image_reg = tk.PhotoImage(master = root, file = path)
+    controller_db = db.ClientsDB()
+
+
+    def GiveAuthorizationUser(self , login , password):
+        print(login , password)
+        nickname = self.controller_db.GetNameFromLogin(login)
+        new_user = user.Client(nickname[0][0],login , password)
+        return new_user
 
     def LoginPage(self):
         new_frame = AutorizetionWindow(master=self.root, image=self.image_reg , app=self)
@@ -32,9 +40,10 @@ class WindowManager():
         new_frame = RegistrationWindow(master=self.root, image=self.image_reg, app=self)
         self.root.destroy()
 
-    def ChatWindow(self):
+    def ChatWindow(self , new_user):
         self.root.geometry("800x800")
-        new_frame = gui_client.Gui_Client(master=self.root, image=self.image_reg, app=self)
+        self.root.resizable(1,1)
+        new_frame = gui_client.Gui_Client(master=self.root, image=self.image_reg, app=self , current_user=new_user)
         if self._frame is not None:
             self._frame.destroy()
         self._frame = new_frame
@@ -61,6 +70,9 @@ class AutorizetionWindow(tk.Frame):
     # image_login = ImageTk.PhotoImage(Image.open(r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"))
     controller = None
     buffer = None
+    current_login = None
+    current_password = None
+
     def GoLogin(self):
         if self.mangerDB.GetColUser() == 0:
            msg = messagebox.showinfo("NonAutorizate" , "dont correct data")
@@ -94,8 +106,16 @@ class AutorizetionWindow(tk.Frame):
 
         if login_access == True:
             if password_access == True :
+                self.current_login = login
+                self.current_password = password
+
                 msg = messagebox.showinfo("Autorizated!!!" , "correct access!!!")
-                self.app.ChatWindow()
+                new_user = self.app.GiveAuthorizationUser(self.current_login , self.current_password)
+                self.app.ChatWindow(new_user)
+            else:
+                msg = messagebox.showinfo("Autorizated!!!", "incorrect access!!!")
+        else:
+            msg = messagebox.showinfo("Autorizated!!!", "incorrect access!!!")
 
 
     def GoRegistration(self):

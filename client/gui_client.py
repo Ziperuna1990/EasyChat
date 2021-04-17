@@ -80,12 +80,23 @@ class Gui_Client(tk.Frame):
                Gui_Client.ListBoxUsers.delete(i)
 
 
-    def __init__(self , master=None , image=None , app=None):
+    def __init__(self , master=None , image=None , app=None , current_user=None):
         tk.Frame.__init__(self, master)
 
-        self.current_user = info_client.Client()
+        self.current_user = current_user
         self.client_is_connected = False
         self.configure(bg='gray74')
+
+        self.user_image = tk.PhotoImage(master=self, file=r'/Users/andrurevkah/PycharmProjects/GameChat/images/tima.png')
+        self.send_button_image = tk.PhotoImage(master=self , file = r'/Users/andrurevkah/PycharmProjects/GameChat/images/send.png')
+
+        # Frame
+        self.frame_first = tk.Frame(self , height = 300, width = 300)
+        self.frame_user = tk.Frame(self , height = 50, width = 300 )
+
+        # label
+        self.user_image_lb = tk.Label(self.frame_user, image=self.user_image)
+        self.user_name_lb = tk.Label(self.frame_user , text = self.current_user.nick_name , font = "Arial 16 bold")
 
         # ListBox
         self.ListBoxUsers = tk.Listbox(self, height="25", width="20")
@@ -94,35 +105,34 @@ class Gui_Client(tk.Frame):
         self.ConnectionButton = tk.Button(self, text="connect", height="2", width="15")
         self.DisconnectButton = tk.Button(self, text="disconnect", height="2", width="15")
         self.QuitButton = tk.Button(self, text="Quit", height="2", width="15", command=quit)
-        self.SendButton = tk.Button(self, text="Send", height="2", width="15")
+        self.SendButton = tk.Button(self.frame_first, text="Send" , image = self.send_button_image , border = "0", bg = "white")
 
         # Entry widgets
-        self.EntryMsgPlace = tk.Entry(self, width="30")
+        self.EntryMsgPlace = tk.Text(self.frame_first, width="50" , height="3" , bg = "gray75")
 
         # Text widget
-        self.ChatTextPlace = tk.Text(self, width="40", height="33")
+        self.ChatTextPlace = tk.Text(self.frame_first, width="40", height="33")
         self.ChatTextPlace.config(state=tk.DISABLED)
 
         #Buttons positions
         self.ConnectionButton.config(command=lambda : self.ConnectionToServer())
-        self.ConnectionButton.place(x = 150 , y = 500)
 
-        self.DisconnectButton.place(x = 0 , y = 500)
         self.DisconnectButton.config(state=tk.DISABLED)
         self.DisconnectButton.config(command=lambda : self.DisconnectionServer())
-
-        self.QuitButton.place(x = 0 , y = 540)
-
-        self.SendButton.place(x = 150 , y = 540)
         self.SendButton.config(command = lambda : self.SendMasseges())
-        #Entry
-        self.EntryMsgPlace.place(x = 0 , y = 465 )
 
-        #Text
-        self.ChatTextPlace.place(x = 10 , y = 10)
+        #pack
+        self.ChatTextPlace.pack(fill = 'x' , side = 'top')
+        self.ListBoxUsers.pack(side = 'right' , fill = 'y')
+        self.EntryMsgPlace.pack(side = 'left' , ipady = 5)
+        self.SendButton.pack(side = 'left')
 
-        #ListBox
-        self.ListBoxUsers.place(x = 300 , y = 10)
+        self.user_image_lb.pack(side = 'left')
+        self.user_name_lb.pack(side = 'left')
+
+        self.frame_user.pack(fill = 'x' , side = 'top')
+        self.frame_first.pack(fill = 'x' , side = 'top')
+
 
 
 

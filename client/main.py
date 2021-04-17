@@ -18,6 +18,13 @@ def main():
     app = ChatAppController()
     app.OpenWindow()
 
+    # HOST = "localhost"
+    # PORT = ":8000"
+    #
+    # sio = socketio.Client()
+    #
+    # sio.connect("http://" + HOST + PORT)
+
 
 if __name__ == "__main__":
     main()

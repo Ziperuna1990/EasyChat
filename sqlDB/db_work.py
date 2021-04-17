@@ -61,6 +61,14 @@ class ClientsDB :
         print(all_result)
         return all_result
 
+    def GetNameFromLogin(self , login):
+        cursor = self.conn.cursor()
+        sql = "SELECT nickname_user FROM User WHERE login_user = ?"
+        cursor.execute(sql , (login , ))
+        all_result = cursor.fetchall()
+        print(all_result)
+        return all_result
+
     def GetIdUser(self):
         cursor = self.conn.cursor()
         sql = "SELECT user_id FROM User"
@@ -92,7 +100,8 @@ class ClientsDB :
 
 def main():
     db = ClientsDB()
-    db.GetAllLogins()
+    va = db.GetNameFromLogin("admin")
+    print(va[0][0])
 
 if __name__ == "__main__":
     main()
