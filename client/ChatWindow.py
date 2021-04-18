@@ -16,14 +16,13 @@ class Gui_Client(tk.Frame):
 
 
     def ConnectionToServer(self): # Function Connection to the server
-        if self.client_is_connected == True:
-            print("LOGS # now is connected !!! ")
-        else :
-            sio.connect("http://" + HOST + PORT)
-            self.ConnectionButton.config(state=tk.DISABLED)
-            self.DisconnectButton.config(state=tk.NORMAL)
+            try:
+               sio.connect("http://" + HOST + PORT)
+            except Exception:
+                print("error connection")
+            finally:
+                self.app.LoginPage()
 
-        self.client_is_connected = True
 
     def DisconnectionServer(self): # Function for Disconnection from server
         if self.client_is_connected != True:
@@ -52,6 +51,11 @@ class Gui_Client(tk.Frame):
             print(i[0])
             self.ListBoxUsers.insert(tk.END , i[0])
 
+    def InitSid(self , sid):
+        self.current_user.sid = sid
+        self.controller_db.UpdateSid(sid , self.current_user.nick_name)
+
+
 
     def __init__(self , master=None , image=None , app=None , current_user=None):
         tk.Frame.__init__(self, master)
@@ -59,6 +63,7 @@ class Gui_Client(tk.Frame):
         self.current_user = current_user
         self.client_is_connected = False
         self.configure(bg='gray74')
+        self.app = app
 
         self.user_image = tk.PhotoImage(master=self, file=r'/Users/andrurevkah/PycharmProjects/GameChat/images/tima.png')
         self.send_button_image = tk.PhotoImage(master=self , file = r'/Users/andrurevkah/PycharmProjects/GameChat/images/send.png')
@@ -114,7 +119,9 @@ class Gui_Client(tk.Frame):
         self.frame_user.pack(fill = 'x' , side = 'top')
         self.frame_first.pack(fill = 'x' , side = 'top')
 
-        self.ConnectionToServer()
+        #self.ConnectionToServer()
+
+        self.InitSid(sio.sid)
 
         @sio.on('welkome_message')
         def GetWelkomeMessage(data):

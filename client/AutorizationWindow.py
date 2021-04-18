@@ -9,7 +9,6 @@ path = r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"
 
 class WindowManager():
     root = tk.Tk()
-    #image_reg = ImageTk.PhotoImage(Image.open(r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"))
     image_reg = tk.PhotoImage(master = root, file = path)
     controller_db = db.ClientsDB()
     if_connect = False
@@ -50,10 +49,7 @@ class WindowManager():
 
     def on_closing(self):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
-            if self.if_connect == True:
-                print("disss")
-                ChatWindow.sio.disconnect()
-
+            ChatWindow.sio.disconnect()
             self.root.destroy()
 
 
@@ -76,8 +72,6 @@ class WindowManager():
 class AutorizetionWindow(tk.Frame):
     # auto_window = tk.Tk()
     # image_login = ImageTk.PhotoImage(Image.open(r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"))
-    controller = None
-    buffer = None
     current_login = None
     current_password = None
 
@@ -119,8 +113,15 @@ class AutorizetionWindow(tk.Frame):
 
                 msg = messagebox.showinfo("Autorizated!!!" , "correct access!!!")
                 new_user = self.app.GiveAuthorizationUser(self.current_login , self.current_password)
-                self.app.if_connect = True
-                self.app.ChatWindow(new_user)
+                # self.app.ChatWindow(new_user)
+
+                try:
+                   ChatWindow.sio.connect("localhost:8000")
+                except Exception:
+                    msg = messagebox.showinfo("error!!!", "Connection failed!!!")
+                    self.app.LoginPage()
+                else:
+                    self.app.ChatWindow(new_user)
             else:
                 msg = messagebox.showinfo("Autorizated!!!", "incorrect access!!!")
         else:

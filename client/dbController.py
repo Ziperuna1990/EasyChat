@@ -92,6 +92,20 @@ class ClientsDB :
         print(all_result)
         return all_result
 
+    def UpdateSid(self , sid , name):
+        cursor = self.conn.cursor()
+        sql = "UPDATE User SET sid_user = ? WHERE nickname_user = ?"
+        cursor.execute(sql, (sid,name))
+        self.conn.commit()
+
+    def GetAllSid(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT sid_user FROM User")
+        all_result = cursor.fetchall()
+        print(all_result)
+        return all_result
+
+
     def __init__(self):
         self.ConnectToDB()
         #self.GetInfoDB()
@@ -100,8 +114,8 @@ class ClientsDB :
 
 def main():
     db = ClientsDB()
-    va = db.GetAllNameDB()
-    print(va[0][0])
+    va = db.UpdateSid("1234234234" , "admin")
+    print(db.GetAllSid())
 
 if __name__ == "__main__":
     main()
