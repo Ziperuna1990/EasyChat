@@ -1,11 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import font as tkfont
-from PIL import Image, ImageTk
-import gui_client
+import ChatWindow
+import ClientClass as user
+import dbController as db
 
-import info_client as user
-import sqlDB.db_work as db
 
 path = r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"
 
@@ -14,6 +12,7 @@ class WindowManager():
     #image_reg = ImageTk.PhotoImage(Image.open(r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"))
     image_reg = tk.PhotoImage(master = root, file = path)
     controller_db = db.ClientsDB()
+    if_connect = False
 
 
     def GiveAuthorizationUser(self , login , password):
@@ -43,11 +42,19 @@ class WindowManager():
     def ChatWindow(self , new_user):
         self.root.geometry("800x800")
         self.root.resizable(1,1)
-        new_frame = gui_client.Gui_Client(master=self.root, image=self.image_reg, app=self , current_user=new_user)
+        new_frame = ChatWindow.Gui_Client(master=self.root, image=self.image_reg, app=self , current_user=new_user)
         if self._frame is not None:
             self._frame.destroy()
         self._frame = new_frame
         self._frame.pack(fill=tk.BOTH, expand=1)
+
+    def on_closing(self):
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            if self.if_connect == True:
+                print("disss")
+                ChatWindow.sio.disconnect()
+
+            self.root.destroy()
 
 
     def __init__(self):
@@ -63,6 +70,7 @@ class WindowManager():
 
 
         self.LoginPage()
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         #self.root.mainloop()
 
 class AutorizetionWindow(tk.Frame):
@@ -111,6 +119,7 @@ class AutorizetionWindow(tk.Frame):
 
                 msg = messagebox.showinfo("Autorizated!!!" , "correct access!!!")
                 new_user = self.app.GiveAuthorizationUser(self.current_login , self.current_password)
+                self.app.if_connect = True
                 self.app.ChatWindow(new_user)
             else:
                 msg = messagebox.showinfo("Autorizated!!!", "incorrect access!!!")

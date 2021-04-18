@@ -1,5 +1,5 @@
 import sqlite3
-import client.info_client as User
+import ClientClass as User
 
 #path = r'/Users/andrurevkah/PycharmProjects/GameChat/sqlDB/UsersChats.db'
 
@@ -33,7 +33,7 @@ class ClientsDB :
         print(all_result)
         return all_result
 
-    def GetNameDB(self):
+    def GetAllNameDB(self):
         cursor = self.conn.cursor()
         cursor.execute("SELECT nickname_user FROM User")
         all_result = cursor.fetchall()
@@ -100,7 +100,7 @@ class ClientsDB :
 
 def main():
     db = ClientsDB()
-    va = db.GetNameFromLogin("admin")
+    va = db.GetAllNameDB()
     print(va[0][0])
 
 if __name__ == "__main__":

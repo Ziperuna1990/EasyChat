@@ -1,7 +1,6 @@
 import tkinter as tk
-from tkinter import messagebox
 import socketio
-import info_client
+import dbController as db
 
 sio = socketio.Client()
 
@@ -10,7 +9,10 @@ PORT=":8000"
 
 class Gui_Client(tk.Frame):
     ChatTextPlace = None
-    ListBoxUsers = None
+    controller_db = db.ClientsDB()
+
+    #ChatTextPlace = tk.Text( width="40", height="33")
+    #ChatTextPlace.config(state=tk.DISABLED)
 
 
     def ConnectionToServer(self): # Function Connection to the server
@@ -36,48 +38,54 @@ class Gui_Client(tk.Frame):
 
     def SendMasseges(self): # Function for recive message to server
         if self.client_is_connected == True:
-           message_body = self.EntryMsgPlace.get()
+           message_body = self.EntryMsgPlace.get("1.0" , tk.END)
            sio.emit('message' , [self.current_user.nick_name , message_body])
 
-           self.EntryMsgPlace.delete(0 , 'end')
+           self.EntryMsgPlace.delete('1.0' , tk.END)
         else :
             print("### logs ###")
             print("error 404 # don't connect to the server")
 
+    def LoadAllUsers(self):
+        list_nicknames = self.controller_db.GetAllNameDB()
+        for i in list_nicknames:
+            print(i[0])
+            self.ListBoxUsers.insert(tk.END , i[0])
+
 
     # events
-    @sio.on('welkome_message')
-    def GetWelkomeMessage(data):
-        Gui_Client.ChatTextPlace.config(state=tk.NORMAL)
-        Gui_Client.ChatTextPlace.insert(tk.END, data)
-        Gui_Client.ChatTextPlace.insert(tk.END, '\n')
-        Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
-
-        #print(data)
-
-    @sio.on('disconnect_message')
-    def GetDisconnectMessage(data):
-        Gui_Client.ChatTextPlace.config(state=tk.NORMAL)
-        Gui_Client.ChatTextPlace.insert(tk.END, data)
-        Gui_Client.ChatTextPlace.insert(tk.END, '\n')
-        Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
-
-    @sio.on('recive_message')
-    def GetClientMessage(data):
-        Gui_Client.ChatTextPlace.config(state=tk.NORMAL)
-        Gui_Client.ChatTextPlace.insert(tk.END, data)
-        Gui_Client.ChatTextPlace.insert(tk.END, '\n')
-        Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
-
-    @sio.on('recive_login')
-    def GetLoginInfo(data):
-        Gui_Client.ListBoxUsers.insert(tk.END, data)
-
-    @sio.on('recive_logout')
-    def GetLogoutInfo(data):
-        for i in range(Gui_Client.ListBoxUsers.size()):
-           if Gui_Client.ListBoxUsers.get(i) == data:
-               Gui_Client.ListBoxUsers.delete(i)
+    # @sio.on('welkome_message')
+    # def GetWelkomeMessage(data):
+    #     Gui_Client.ChatTextPlace.config(state=tk.NORMAL)
+    #     Gui_Client.ChatTextPlace.insert(tk.END, data)
+    #     Gui_Client.ChatTextPlace.insert(tk.END, '\n')
+    #     Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
+    #
+    #     #print(data)
+    #
+    # @sio.on('disconnect_message')
+    # def GetDisconnectMessage(data):
+    #     Gui_Client.ChatTextPlace.config(state=tk.NORMAL)
+    #     Gui_Client.ChatTextPlace.insert(tk.END, data)
+    #     Gui_Client.ChatTextPlace.insert(tk.END, '\n')
+    #     Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
+    #
+    # @sio.on('recive_message')
+    # def GetClientMessage(data):
+    #     Gui_Client.ChatTextPlace.config(state=tk.NORMAL)
+    #     Gui_Client.ChatTextPlace.insert(tk.END, data)
+    #     Gui_Client.ChatTextPlace.insert(tk.END, '\n')
+    #     Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
+    #
+    # @sio.on('recive_login')
+    # def GetLoginInfo(data):
+    #     Gui_Client.ListBoxUsers.insert(tk.END, data)
+    #
+    # @sio.on('recive_logout')
+    # def GetLogoutInfo(data):
+    #     for i in range(Gui_Client.ListBoxUsers.size()):
+    #        if Gui_Client.ListBoxUsers.get(i) == data:
+    #            Gui_Client.ListBoxUsers.delete(i)
 
 
     def __init__(self , master=None , image=None , app=None , current_user=None):
@@ -93,13 +101,17 @@ class Gui_Client(tk.Frame):
         # Frame
         self.frame_first = tk.Frame(self , height = 300, width = 300)
         self.frame_user = tk.Frame(self , height = 50, width = 300 )
+        #self.ChatTextPlace.config(master = self.frame_first)
 
         # label
         self.user_image_lb = tk.Label(self.frame_user, image=self.user_image)
         self.user_name_lb = tk.Label(self.frame_user , text = self.current_user.nick_name , font = "Arial 16 bold")
 
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         # ListBox
-        self.ListBoxUsers = tk.Listbox(self, height="25", width="20")
+        self.ListBoxUsers = tk.Listbox(self, height="25", width="20" , yscrollcommand=self.scrollbar.set , font = "Arial 16 bold")
+        self.LoadAllUsers()
 
         # Buttons
         self.ConnectionButton = tk.Button(self, text="connect", height="2", width="15")
@@ -112,6 +124,7 @@ class Gui_Client(tk.Frame):
 
         # Text widget
         self.ChatTextPlace = tk.Text(self.frame_first, width="40", height="33")
+        #self.ChatTextPlace.configure(self.frame_first , width="40", height="33")
         self.ChatTextPlace.config(state=tk.DISABLED)
 
         #Buttons positions
@@ -132,6 +145,41 @@ class Gui_Client(tk.Frame):
 
         self.frame_user.pack(fill = 'x' , side = 'top')
         self.frame_first.pack(fill = 'x' , side = 'top')
+
+        self.ConnectionToServer()
+
+        @sio.on('welkome_message')
+        def GetWelkomeMessage(data):
+            self.ChatTextPlace.config(state=tk.NORMAL)
+            self.ChatTextPlace.insert(tk.END, data)
+            self.ChatTextPlace.insert(tk.END, '\n')
+            self.ChatTextPlace.config(state=tk.DISABLED)
+
+            # print(data)
+
+        @sio.on('disconnect_message')
+        def GetDisconnectMessage(data):
+            self.ChatTextPlace.config(state=tk.NORMAL)
+            self.ChatTextPlace.insert(tk.END, data)
+            self.ChatTextPlace.insert(tk.END, '\n')
+            self.ChatTextPlace.config(state=tk.DISABLED)
+
+        @sio.on('recive_message')
+        def GetClientMessage(data):
+            self.ChatTextPlace.config(state=tk.NORMAL)
+            self.ChatTextPlace.insert(tk.END, data)
+            self.ChatTextPlace.insert(tk.END, '\n')
+            self.ChatTextPlace.config(state=tk.DISABLED)
+
+        @sio.on('recive_login')
+        def GetLoginInfo(data):
+            self.ListBoxUsers.insert(tk.END, data)
+
+        @sio.on('recive_logout')
+        def GetLogoutInfo(data):
+            for i in range(self.ListBoxUsers.size()):
+                if self.ListBoxUsers.get(i) == data:
+                    self.ListBoxUsers.delete(i)
 
 
 
