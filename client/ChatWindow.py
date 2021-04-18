@@ -53,41 +53,6 @@ class Gui_Client(tk.Frame):
             self.ListBoxUsers.insert(tk.END , i[0])
 
 
-    # events
-    # @sio.on('welkome_message')
-    # def GetWelkomeMessage(data):
-    #     Gui_Client.ChatTextPlace.config(state=tk.NORMAL)
-    #     Gui_Client.ChatTextPlace.insert(tk.END, data)
-    #     Gui_Client.ChatTextPlace.insert(tk.END, '\n')
-    #     Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
-    #
-    #     #print(data)
-    #
-    # @sio.on('disconnect_message')
-    # def GetDisconnectMessage(data):
-    #     Gui_Client.ChatTextPlace.config(state=tk.NORMAL)
-    #     Gui_Client.ChatTextPlace.insert(tk.END, data)
-    #     Gui_Client.ChatTextPlace.insert(tk.END, '\n')
-    #     Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
-    #
-    # @sio.on('recive_message')
-    # def GetClientMessage(data):
-    #     Gui_Client.ChatTextPlace.config(state=tk.NORMAL)
-    #     Gui_Client.ChatTextPlace.insert(tk.END, data)
-    #     Gui_Client.ChatTextPlace.insert(tk.END, '\n')
-    #     Gui_Client.ChatTextPlace.config(state=tk.DISABLED)
-    #
-    # @sio.on('recive_login')
-    # def GetLoginInfo(data):
-    #     Gui_Client.ListBoxUsers.insert(tk.END, data)
-    #
-    # @sio.on('recive_logout')
-    # def GetLogoutInfo(data):
-    #     for i in range(Gui_Client.ListBoxUsers.size()):
-    #        if Gui_Client.ListBoxUsers.get(i) == data:
-    #            Gui_Client.ListBoxUsers.delete(i)
-
-
     def __init__(self , master=None , image=None , app=None , current_user=None):
         tk.Frame.__init__(self, master)
 
@@ -109,6 +74,9 @@ class Gui_Client(tk.Frame):
 
         self.scrollbar = tk.Scrollbar(self)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.scrollbar_text = tk.Scrollbar(self)
+        self.scrollbar_text.pack(side=tk.LEFT, fill=tk.Y)
         # ListBox
         self.ListBoxUsers = tk.Listbox(self, height="25", width="20" , yscrollcommand=self.scrollbar.set , font = "Arial 16 bold")
         self.LoadAllUsers()
@@ -120,10 +88,10 @@ class Gui_Client(tk.Frame):
         self.SendButton = tk.Button(self.frame_first, text="Send" , image = self.send_button_image , border = "0", bg = "white")
 
         # Entry widgets
-        self.EntryMsgPlace = tk.Text(self.frame_first, width="50" , height="3" , bg = "gray75")
+        self.EntryMsgPlace = tk.Text(self.frame_first, width="50" , height="3" , bg = "gray75" ,font=("Arial", 16, "bold"))
 
         # Text widget
-        self.ChatTextPlace = tk.Text(self.frame_first, width="40", height="33")
+        self.ChatTextPlace = tk.Text(self.frame_first, width="40", height="33" , font=("Arial", 16, "bold") , yscrollcommand=self.scrollbar.set)
         #self.ChatTextPlace.configure(self.frame_first , width="40", height="33")
         self.ChatTextPlace.config(state=tk.DISABLED)
 
@@ -167,7 +135,7 @@ class Gui_Client(tk.Frame):
         @sio.on('recive_message')
         def GetClientMessage(data):
             self.ChatTextPlace.config(state=tk.NORMAL)
-            self.ChatTextPlace.insert(tk.END, data)
+            self.ChatTextPlace.insert(1.0,'\t' + data)
             self.ChatTextPlace.insert(tk.END, '\n')
             self.ChatTextPlace.config(state=tk.DISABLED)
 

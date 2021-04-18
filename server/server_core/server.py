@@ -19,7 +19,7 @@ def disconnect(sid):
 @sio.on('message')
 def get_message_from_client(sid , data=[]):
     print("### LOGS ### " + sid + " - " + data[0] + " - " + data[1])
-    #print(data)
+    print(data)
     sio.emit('recive_message' , data[0] + " -> " + data[1])
 
 @sio.on('login')
