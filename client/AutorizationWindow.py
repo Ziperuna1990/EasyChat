@@ -3,6 +3,7 @@ from tkinter import messagebox
 import ChatWindow
 import ClientClass as user
 import dbController as db
+import socketio.exceptions
 
 
 path = r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"
@@ -13,6 +14,12 @@ class WindowManager():
     controller_db = db.ClientsDB()
     if_connect = False
 
+
+    def CheakAlredyLogin(self , login):
+        sid = self.controller_db.GetSidFromLogin(login)[0][0]
+        if sid == "None":
+            return True
+        else: return False
 
     def GiveAuthorizationUser(self , login , password):
         print(login , password)
@@ -49,6 +56,9 @@ class WindowManager():
 
     def on_closing(self):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            sid = ChatWindow.sio.sid
+            self.controller_db.UpdateSidl("None" , sid)
+
             ChatWindow.sio.disconnect()
             self.root.destroy()
 
@@ -116,12 +126,16 @@ class AutorizetionWindow(tk.Frame):
                 # self.app.ChatWindow(new_user)
 
                 try:
-                   ChatWindow.sio.connect("localhost:8000")
-                except Exception:
-                    msg = messagebox.showinfo("error!!!", "Connection failed!!!")
+                   ChatWindow.sio.connect("http://localhost:8000")
+                except socketio.exceptions.ConnectionError as err:
+                    msg = messagebox.showinfo("error!!!", err)
                     self.app.LoginPage()
                 else:
-                    self.app.ChatWindow(new_user)
+                    if self.app.CheakAlredyLogin(self.current_login):
+                        self.app.ChatWindow(new_user)
+                    else:
+                        msg = messagebox.showinfo("error!!!", "User already logined!!!")
+                        self.app.LoginPage()
             else:
                 msg = messagebox.showinfo("Autorizated!!!", "incorrect access!!!")
         else:

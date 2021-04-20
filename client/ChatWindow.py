@@ -11,9 +11,6 @@ class Gui_Client(tk.Frame):
     ChatTextPlace = None
     controller_db = db.ClientsDB()
 
-    #ChatTextPlace = tk.Text( width="40", height="33")
-    #ChatTextPlace.config(state=tk.DISABLED)
-
 
     def ConnectionToServer(self): # Function Connection to the server
             try:
@@ -29,27 +26,30 @@ class Gui_Client(tk.Frame):
             id_client = sio.sid
             sio.emit('logout', self.current_user.nick_name)
             sio.disconnect()
-            self.ConnectionButton.config(state=tk.NORMAL)
-            self.DisconnectButton.config(state=tk.DISABLED)
         else: print("LOGS # now is deisconnected !!! ")
         self.client_is_connected = False
         self.UserIsLogined = False
 
     def SendMasseges(self): # Function for recive message to server
-        if self.client_is_connected == True:
            message_body = self.EntryMsgPlace.get("1.0" , tk.END)
            sio.emit('message' , [self.current_user.nick_name , message_body])
 
            self.EntryMsgPlace.delete('1.0' , tk.END)
-        else :
-            print("### logs ###")
-            print("error 404 # don't connect to the server")
 
     def LoadAllUsers(self):
+        self.ListBoxUsers.delete(0, tk.END)
         list_nicknames = self.controller_db.GetAllNameDB()
         for i in list_nicknames:
             print(i[0])
             self.ListBoxUsers.insert(tk.END , i[0])
+
+    def ShowOnlineUsers(self):
+        self.ListBoxUsers.delete(0 ,tk.END)
+        list_all_sid = self.controller_db.GetAllSid()
+        for i in list_all_sid:
+            if i[0] != "None" :
+                name = self.controller_db.GetNameFromSid(i[0])
+                self.ListBoxUsers.insert(tk.END, name[0][0])
 
     def InitSid(self , sid):
         self.current_user.sid = sid
@@ -71,7 +71,9 @@ class Gui_Client(tk.Frame):
         # Frame
         self.frame_first = tk.Frame(self , height = 300, width = 300)
         self.frame_user = tk.Frame(self , height = 50, width = 300 )
-        #self.ChatTextPlace.config(master = self.frame_first)
+
+        self.frame_list_user = tk.Frame(self , height = 300)
+        self.frame_list_user_btn = tk.Frame(self.frame_list_user)
 
         # label
         self.user_image_lb = tk.Label(self.frame_user, image=self.user_image)
@@ -82,42 +84,40 @@ class Gui_Client(tk.Frame):
 
         self.scrollbar_text = tk.Scrollbar(self)
         self.scrollbar_text.pack(side=tk.LEFT, fill=tk.Y)
+
         # ListBox
-        self.ListBoxUsers = tk.Listbox(self, height="25", width="20" , yscrollcommand=self.scrollbar.set , font = "Arial 16 bold")
+        self.ListBoxUsers = tk.Listbox(self.frame_list_user, height="35", width="20" , yscrollcommand=self.scrollbar.set , font = "Arial 16 bold")
         self.LoadAllUsers()
 
         # Buttons
-        self.ConnectionButton = tk.Button(self, text="connect", height="2", width="15")
-        self.DisconnectButton = tk.Button(self, text="disconnect", height="2", width="15")
-        self.QuitButton = tk.Button(self, text="Quit", height="2", width="15", command=quit)
-        self.SendButton = tk.Button(self.frame_first, text="Send" , image = self.send_button_image , border = "0", bg = "white")
+        self.SendButton = tk.Button(self.frame_first, text="Send" , image = self.send_button_image , border = "0", bg = "white" ,command = lambda : self.SendMasseges())
+        self.ShowOnlineUserBtn = tk.Button(self.frame_list_user_btn , text="online" , height="2", width="5" , command = lambda :self.ShowOnlineUsers())
+        self.ShowAllUserBtn = tk.Button(self.frame_list_user_btn , text="all" , height="2", width="5" , command = lambda :self.LoadAllUsers())
 
         # Entry widgets
         self.EntryMsgPlace = tk.Text(self.frame_first, width="50" , height="3" , bg = "gray75" ,font=("Arial", 16, "bold"))
 
         # Text widget
         self.ChatTextPlace = tk.Text(self.frame_first, width="40", height="33" , font=("Arial", 16, "bold") , yscrollcommand=self.scrollbar.set)
-        #self.ChatTextPlace.configure(self.frame_first , width="40", height="33")
         self.ChatTextPlace.config(state=tk.DISABLED)
-
-        #Buttons positions
-        self.ConnectionButton.config(command=lambda : self.ConnectionToServer())
-
-        self.DisconnectButton.config(state=tk.DISABLED)
-        self.DisconnectButton.config(command=lambda : self.DisconnectionServer())
-        self.SendButton.config(command = lambda : self.SendMasseges())
 
         #pack
         self.ChatTextPlace.pack(fill = 'x' , side = 'top')
-        self.ListBoxUsers.pack(side = 'right' , fill = 'y')
+        self.ListBoxUsers.pack(side = 'bottom' , fill = 'y')
         self.EntryMsgPlace.pack(side = 'left' , ipady = 5)
         self.SendButton.pack(side = 'left')
+        self.ShowAllUserBtn.pack(side = 'left')
+        self.ShowOnlineUserBtn.pack(side = 'left')
 
         self.user_image_lb.pack(side = 'left')
         self.user_name_lb.pack(side = 'left')
 
+        self.frame_list_user.pack(side='right')
+        self.frame_list_user_btn.pack(side = "top")
         self.frame_user.pack(fill = 'x' , side = 'top')
         self.frame_first.pack(fill = 'x' , side = 'top')
+
+      #  self.frame_list_user_btn.pack()
 
         #self.ConnectionToServer()
 
@@ -136,7 +136,7 @@ class Gui_Client(tk.Frame):
         def GetDisconnectMessage(data):
             self.ChatTextPlace.config(state=tk.NORMAL)
             self.ChatTextPlace.insert(tk.END, data)
-            self.ChatTextPlace.insert(tk.END, '\n')
+            self.ChatTextPlace.insert(tk.END, '\n' + '\n')
             self.ChatTextPlace.config(state=tk.DISABLED)
 
         @sio.on('recive_message')
