@@ -36,6 +36,10 @@ class Gui_Client(tk.Frame):
 
            self.EntryMsgPlace.delete('1.0' , tk.END)
 
+    def SendMessageEvent(self , event):
+        print("adada")
+        self.SendMasseges()
+
     def LoadAllUsers(self):
         self.ListBoxUsers.delete(0, tk.END)
         list_nicknames = self.controller_db.GetAllNameDB()
@@ -91,6 +95,8 @@ class Gui_Client(tk.Frame):
 
         # Buttons
         self.SendButton = tk.Button(self.frame_first, text="Send" , image = self.send_button_image , border = "0", bg = "white" ,command = lambda : self.SendMasseges())
+        self.SendButton.bind("<Return>" ,lambda event: self.SendMessageEvent())
+
         self.ShowOnlineUserBtn = tk.Button(self.frame_list_user_btn , text="online" , height="2", width="5" , command = lambda :self.ShowOnlineUsers())
         self.ShowAllUserBtn = tk.Button(self.frame_list_user_btn , text="all" , height="2", width="5" , command = lambda :self.LoadAllUsers())
 
@@ -136,13 +142,13 @@ class Gui_Client(tk.Frame):
         def GetDisconnectMessage(data):
             self.ChatTextPlace.config(state=tk.NORMAL)
             self.ChatTextPlace.insert(tk.END, data)
-            self.ChatTextPlace.insert(tk.END, '\n' + '\n')
+            self.ChatTextPlace.insert(tk.END, '\n')
             self.ChatTextPlace.config(state=tk.DISABLED)
 
         @sio.on('recive_message')
         def GetClientMessage(data):
             self.ChatTextPlace.config(state=tk.NORMAL)
-            self.ChatTextPlace.insert(1.0,'\t' + data)
+            self.ChatTextPlace.insert(tk.END,'\t' + data)
             self.ChatTextPlace.insert(tk.END, '\n')
             self.ChatTextPlace.config(state=tk.DISABLED)
 
