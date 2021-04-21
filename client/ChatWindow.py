@@ -36,9 +36,6 @@ class Gui_Client(tk.Frame):
 
            self.EntryMsgPlace.delete('1.0' , tk.END)
 
-    def SendMessageEvent(self , event):
-        print("adada")
-        self.SendMasseges()
 
     def LoadAllUsers(self):
         self.ListBoxUsers.delete(0, tk.END)
@@ -58,6 +55,11 @@ class Gui_Client(tk.Frame):
     def InitSid(self , sid):
         self.current_user.sid = sid
         self.controller_db.UpdateSid(sid , self.current_user.nick_name)
+
+    def SendEnterMessage(self, key):
+        self.SendMasseges()
+        #self.EntryMsgPlace.insert(tk.END , '\n')
+        self.EntryMsgPlace.delete(0 , tk.END)
 
 
 
@@ -83,11 +85,9 @@ class Gui_Client(tk.Frame):
         self.user_image_lb = tk.Label(self.frame_user, image=self.user_image)
         self.user_name_lb = tk.Label(self.frame_user , text = self.current_user.nick_name , font = "Arial 16 bold")
 
-        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar = tk.Scrollbar(self , orient=tk.VERTICAL, command=lambda :self.ChatTextPlace.yview)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        self.scrollbar_text = tk.Scrollbar(self)
-        self.scrollbar_text.pack(side=tk.LEFT, fill=tk.Y)
 
         # ListBox
         self.ListBoxUsers = tk.Listbox(self.frame_list_user, height="35", width="20" , yscrollcommand=self.scrollbar.set , font = "Arial 16 bold")
@@ -95,7 +95,6 @@ class Gui_Client(tk.Frame):
 
         # Buttons
         self.SendButton = tk.Button(self.frame_first, text="Send" , image = self.send_button_image , border = "0", bg = "white" ,command = lambda : self.SendMasseges())
-        self.SendButton.bind("<Return>" ,lambda event: self.SendMessageEvent())
 
         self.ShowOnlineUserBtn = tk.Button(self.frame_list_user_btn , text="online" , height="2", width="5" , command = lambda :self.ShowOnlineUsers())
         self.ShowAllUserBtn = tk.Button(self.frame_list_user_btn , text="all" , height="2", width="5" , command = lambda :self.LoadAllUsers())
@@ -110,8 +109,8 @@ class Gui_Client(tk.Frame):
         #pack
         self.ChatTextPlace.pack(fill = 'x' , side = 'top')
         self.ListBoxUsers.pack(side = 'bottom' , fill = 'y')
-        self.EntryMsgPlace.pack(side = 'left' , ipady = 5)
-        self.SendButton.pack(side = 'left')
+        self.EntryMsgPlace.pack(fill = 'x' , side = 'left' , ipady = 5)
+        self.SendButton.pack(fill = 'x' , side = 'left')
         self.ShowAllUserBtn.pack(side = 'left')
         self.ShowOnlineUserBtn.pack(side = 'left')
 
@@ -121,11 +120,10 @@ class Gui_Client(tk.Frame):
         self.frame_list_user.pack(side='right')
         self.frame_list_user_btn.pack(side = "top")
         self.frame_user.pack(fill = 'x' , side = 'top')
-        self.frame_first.pack(fill = 'x' , side = 'top')
-
-      #  self.frame_list_user_btn.pack()
+        self.frame_first.pack( side = 'bottom')
 
         #self.ConnectionToServer()
+        self.EntryMsgPlace.bind('<Control-Return>' , self.SendEnterMessage)
 
         self.InitSid(sio.sid)
 
