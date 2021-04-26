@@ -79,7 +79,7 @@ class Gui_Client(tk.Frame):
         self.frame_user = tk.Frame(self , height = 50, width = 300 )
 
         self.frame_list_user = tk.Frame(self , height = 300)
-        self.frame_list_user_btn = tk.Frame(self.frame_list_user)
+        self.frame_list_user_btn = tk.Frame(self.frame_list_user , bg = 'gray74')
 
         # label
         self.user_image_lb = tk.Label(self.frame_user, image=self.user_image)
@@ -103,7 +103,7 @@ class Gui_Client(tk.Frame):
         self.EntryMsgPlace = tk.Text(self.frame_first, width="50" , height="3" , bg = "gray75" ,font=("Arial", 16, "bold"))
 
         # Text widget
-        self.ChatTextPlace = tk.Text(self.frame_first, width="40", height="33" , font=("Arial", 16, "bold") , yscrollcommand=self.scrollbar.set)
+        self.ChatTextPlace = tk.Text(self.frame_first, width="40", height="33" , font=("Arial", 16, "bold") , yscrollcommand=self.scrollbar.set ,bg = 'azure')
         self.ChatTextPlace.config(state=tk.DISABLED)
 
         #pack
@@ -117,10 +117,10 @@ class Gui_Client(tk.Frame):
         self.user_image_lb.pack(side = 'left')
         self.user_name_lb.pack(side = 'left')
 
-        self.frame_list_user.pack(side='right')
+        self.frame_list_user.pack(fill = 'x' , side='right')
         self.frame_list_user_btn.pack(side = "top")
         self.frame_user.pack(fill = 'x' , side = 'top')
-        self.frame_first.pack( side = 'bottom')
+        self.frame_first.pack(fill = 'x' , side = 'top')
 
         #self.ConnectionToServer()
         self.EntryMsgPlace.bind('<Control-Return>' , self.SendEnterMessage)

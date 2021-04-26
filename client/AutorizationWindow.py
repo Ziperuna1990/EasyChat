@@ -46,8 +46,8 @@ class WindowManager():
         self.root.destroy()
 
     def ChatWindow(self , new_user):
-        self.root.geometry("800x800")
-        self.root.resizable(1,1)
+        self.root.geometry("750x700")
+        self.root.resizable(0,0)
         new_frame = ChatWindow.Gui_Client(master=self.root, image=self.image_reg, app=self , current_user=new_user)
         if self._frame is not None:
             self._frame.destroy()
