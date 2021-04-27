@@ -1,8 +1,7 @@
 import sqlite3
 import tkinter as tk
 import ClientClass as User
-
-#path = r'/Users/andrurevkah/PycharmProjects/GameChat/sqlDB/UsersChats.db'
+import psycopg2
 
 class ClientsDB :
     conn = None
@@ -114,7 +113,7 @@ class ClientsDB :
     #INSERT
     def AddInfoToDB(self , user = User.Client()):
         cursor = self.conn.cursor()
-        user_info = (user.user_id , user.login , user.password , user.sid , user.nick_name)
+        user_info = (int(user.user_id) , user.login , user.password , user.sid , user.nick_name)
         cursor.execute("INSERT INTO User VALUES(?,?,?,?,?);" , user_info)
         self.conn.commit()
 

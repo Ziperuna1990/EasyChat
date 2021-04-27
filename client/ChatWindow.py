@@ -1,6 +1,6 @@
 import tkinter as tk
 import socketio
-import dbController as db
+import postsql as db
 
 sio = socketio.Client()
 
@@ -9,7 +9,7 @@ PORT=":8000"
 
 class Gui_Client(tk.Frame):
     ChatTextPlace = None
-    controller_db = db.ClientsDB()
+    controller_db = db.Postgres()
 
 
     def ConnectionToServer(self): # Function Connection to the server

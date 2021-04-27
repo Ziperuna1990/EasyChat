@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import ChatWindow
 import ClientClass as user
-import dbController as db
+import postsql as db
 import socketio.exceptions
 
 
@@ -11,7 +11,7 @@ path = r"/Users/andrurevkah/PycharmProjects/GameChat/images/login.png"
 class WindowManager():
     root = tk.Tk()
     image_reg = tk.PhotoImage(master = root, file = path)
-    controller_db = db.ClientsDB()
+    controller_db = db.Postgres()
     if_connect = False
 
 
@@ -57,6 +57,7 @@ class WindowManager():
     def on_closing(self):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             sid = ChatWindow.sio.sid
+            print(sid)
             self.controller_db.UpdateSidl("None" , sid)
 
             ChatWindow.sio.disconnect()
@@ -125,17 +126,18 @@ class AutorizetionWindow(tk.Frame):
                 new_user = self.app.GiveAuthorizationUser(self.current_login , self.current_password)
                 # self.app.ChatWindow(new_user)
 
-                try:
-                   ChatWindow.sio.connect("http://localhost:8000")
-                except socketio.exceptions.ConnectionError as err:
-                    msg = messagebox.showinfo("error!!!", err)
-                    self.app.LoginPage()
+                if self.app.CheakAlredyLogin(self.current_login):
+
+                   try:
+                      ChatWindow.sio.connect("http://localhost:8000")
+                   except socketio.exceptions.ConnectionError as err:
+                       msg = messagebox.showinfo("error!!!", err)
+                       self.app.LoginPage()
+                   else:
+                       self.app.ChatWindow(new_user)
                 else:
-                    if self.app.CheakAlredyLogin(self.current_login):
-                        self.app.ChatWindow(new_user)
-                    else:
-                        msg = messagebox.showinfo("error!!!", "User already logined!!!")
-                        self.app.LoginPage()
+                    msg = messagebox.showinfo("error!!!", "User already logined!!!")
+                    self.app.LoginPage()
             else:
                 msg = messagebox.showinfo("Autorizated!!!", "incorrect access!!!")
         else:
@@ -152,7 +154,7 @@ class AutorizetionWindow(tk.Frame):
         self.image = image
         self.app =app
 
-        self.mangerDB = db.ClientsDB()
+        self.mangerDB = db.Postgres()
 
         image_label = tk.Label(self , image=self.image).pack()
 
@@ -204,7 +206,7 @@ class RegistrationWindow(tk.Frame):
 
         new_client = user.Client(info[0] , info[1] , info[2])
         new_client.user_id = self.GetNewIdForClient()
-        new_client.sid = "ab2242f"
+        new_client.sid = "None"
 
         self.mangerDB.AddInfoToDB(new_client)
 
@@ -216,7 +218,7 @@ class RegistrationWindow(tk.Frame):
         self.image = image
         self.app = app
 
-        self.mangerDB = db.ClientsDB()
+        self.mangerDB = db.Postgres()
 
         image_label = tk.Label(self , image = self.image)
         image_label.pack()

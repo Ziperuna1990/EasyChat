@@ -1,0 +1,18 @@
+version: '3'
+services:
+
+  socket-server:
+    container_name: server
+    image: docker-compose_socket-server:latest
+    build: /Users/andrurevkah/PycharmProjects/GameChat/server/
+    ports:
+      - 8000:8000
+    restart: always
+
+  db:
+    container_name: postgres_db
+    image: docker-compose_db:latest
+    build: /Users/andrurevkah/PycharmProjects/GameChat/sqlDB/
+    ports:
+      - 5432:5432
+    restart: always
