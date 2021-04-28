@@ -14,7 +14,7 @@ class Gui_Client(tk.Frame):
 
     def ConnectionToServer(self): # Function Connection to the server
             try:
-               sio.connect("http://" + HOST + PORT)
+               sio.connect("http://" + HOST + PORT + "/server")
             except Exception:
                 print("error connection")
             finally:
@@ -36,21 +36,20 @@ class Gui_Client(tk.Frame):
 
            self.EntryMsgPlace.delete('1.0' , tk.END)
 
-
-    def LoadAllUsers(self):
-        self.ListBoxUsers.delete(0, tk.END)
+    def LoadAllUsers(self , list_box):
+        list_box.delete(0, tk.END)
         list_nicknames = self.controller_db.GetAllNameDB()
         for i in list_nicknames:
             print(i[0])
-            self.ListBoxUsers.insert(tk.END , i[0])
+            list_box.insert(tk.END , i[0])
 
-    def ShowOnlineUsers(self):
-        self.ListBoxUsers.delete(0 ,tk.END)
+    def ShowOnlineUsers(self , list_box):
+        list_box.delete(0 ,tk.END)
         list_all_sid = self.controller_db.GetAllSid()
         for i in list_all_sid:
             if i[0] != "None" :
                 name = self.controller_db.GetNameFromSid(i[0])
-                self.ListBoxUsers.insert(tk.END, name[0][0])
+                list_box.insert(tk.END, name[0][0])
 
     def InitSid(self , sid):
         self.current_user.sid = sid
@@ -59,7 +58,24 @@ class Gui_Client(tk.Frame):
     def SendEnterMessage(self, key):
         self.SendMasseges()
         #self.EntryMsgPlace.insert(tk.END , '\n')
-        self.EntryMsgPlace.delete(0 , tk.END)
+        self.EntryMsgPlace.delete('1.0' , tk.END)
+
+    def OpenMemberWindow(self):
+        member_list = tk.Toplevel()
+        #member_list.mainloop()
+        frame_list_user_btn = tk.Frame(member_list)
+
+        ListBoxUsers = tk.Listbox(member_list, height="35", width="20",
+                                  font="Arial 16 bold")
+        self.LoadAllUsers(ListBoxUsers)
+
+        ShowOnlineUserBtn = tk.Button(frame_list_user_btn, text="online", height="2", width="5", command = lambda : self.ShowOnlineUsers(ListBoxUsers))
+        ShowAllUserBtn = tk.Button(frame_list_user_btn, text="all", height="2", width="5" , command = lambda : self.LoadAllUsers(ListBoxUsers))
+
+        ShowAllUserBtn.pack(side='left')
+        ShowOnlineUserBtn.pack(side='left')
+        frame_list_user_btn.pack(side="top")
+        ListBoxUsers.pack(side='bottom')
 
 
 
@@ -73,13 +89,14 @@ class Gui_Client(tk.Frame):
 
         self.user_image = tk.PhotoImage(master=self, file=r'/Users/andrurevkah/PycharmProjects/GameChat/images/tima.png')
         self.send_button_image = tk.PhotoImage(master=self , file = r'/Users/andrurevkah/PycharmProjects/GameChat/images/send.png')
+        self.member_button_image = tk.PhotoImage(master=self , file = r'/Users/andrurevkah/PycharmProjects/GameChat/images/member.png')
 
         # Frame
         self.frame_first = tk.Frame(self , height = 300, width = 300)
         self.frame_user = tk.Frame(self , height = 50, width = 300 )
 
         self.frame_list_user = tk.Frame(self , height = 300)
-        self.frame_list_user_btn = tk.Frame(self.frame_list_user , bg = 'gray74')
+        self.frame_list_user_btn = tk.Frame(self.frame_list_user , bg = '#0088cc')
 
         # label
         self.user_image_lb = tk.Label(self.frame_user, image=self.user_image)
@@ -91,34 +108,27 @@ class Gui_Client(tk.Frame):
 
         # ListBox
         self.ListBoxUsers = tk.Listbox(self.frame_list_user, height="35", width="20" , yscrollcommand=self.scrollbar.set , font = "Arial 16 bold")
-        self.LoadAllUsers()
 
         # Buttons
         self.SendButton = tk.Button(self.frame_first, text="Send" , image = self.send_button_image , border = "0", bg = "white" ,command = lambda : self.SendMasseges())
-
-        self.ShowOnlineUserBtn = tk.Button(self.frame_list_user_btn , text="online" , height="2", width="5" , command = lambda :self.ShowOnlineUsers())
-        self.ShowAllUserBtn = tk.Button(self.frame_list_user_btn , text="all" , height="2", width="5" , command = lambda :self.LoadAllUsers())
+        self.MemberButton = tk.Button(self.frame_first, text="Send" ,image = self.member_button_image ,  border = "0", bg = "white" ,command = lambda : self.OpenMemberWindow())
 
         # Entry widgets
-        self.EntryMsgPlace = tk.Text(self.frame_first, width="50" , height="3" , bg = "gray75" ,font=("Arial", 16, "bold"))
+        self.EntryMsgPlace = tk.Text(self.frame_first, width="70" , height="3" , bg = "gray75" ,font=("Arial", 16, "bold"))
 
         # Text widget
-        self.ChatTextPlace = tk.Text(self.frame_first, width="40", height="33" , font=("Arial", 16, "bold") , yscrollcommand=self.scrollbar.set ,bg = 'azure')
+        self.ChatTextPlace = tk.Text(self.frame_first, width="40", height="33" , font=("0088cc", 16, "bold") , yscrollcommand=self.scrollbar.set ,bg = 'azure')
         self.ChatTextPlace.config(state=tk.DISABLED)
 
         #pack
         self.ChatTextPlace.pack(fill = 'x' , side = 'top')
-        self.ListBoxUsers.pack(side = 'bottom' , fill = 'y')
         self.EntryMsgPlace.pack(fill = 'x' , side = 'left' , ipady = 5)
         self.SendButton.pack(fill = 'x' , side = 'left')
-        self.ShowAllUserBtn.pack(side = 'left')
-        self.ShowOnlineUserBtn.pack(side = 'left')
+        self.MemberButton.pack(side = 'left')
 
         self.user_image_lb.pack(side = 'left')
         self.user_name_lb.pack(side = 'left')
 
-        self.frame_list_user.pack(fill = 'x' , side='right')
-        self.frame_list_user_btn.pack(side = "top")
         self.frame_user.pack(fill = 'x' , side = 'top')
         self.frame_first.pack(fill = 'x' , side = 'top')
 
@@ -146,8 +156,8 @@ class Gui_Client(tk.Frame):
         @sio.on('recive_message')
         def GetClientMessage(data):
             self.ChatTextPlace.config(state=tk.NORMAL)
-            self.ChatTextPlace.insert(tk.END,'\t' + data)
-            self.ChatTextPlace.insert(tk.END, '\n')
+            self.ChatTextPlace.insert(tk.END,data)
+            #self.ChatTextPlace.insert(tk.END, '\n')
             self.ChatTextPlace.config(state=tk.DISABLED)
 
         @sio.on('recive_login')

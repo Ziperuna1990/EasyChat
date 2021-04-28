@@ -92,6 +92,7 @@ class AutorizetionWindow(tk.Frame):
 
         login = self.login_space.get()
         password = self.password_space.get()
+        ip = self.ip_space.get()
         self.login_space.delete(0 , tk.END)
         self.password_space.delete(0 , tk.END)
 
@@ -129,7 +130,7 @@ class AutorizetionWindow(tk.Frame):
                 if self.app.CheakAlredyLogin(self.current_login):
 
                    try:
-                      ChatWindow.sio.connect("http://localhost:8000")
+                       ChatWindow.sio.connect("http://" + ip + ":8000")
                    except socketio.exceptions.ConnectionError as err:
                        msg = messagebox.showinfo("error!!!", err)
                        self.app.LoginPage()
@@ -158,23 +159,29 @@ class AutorizetionWindow(tk.Frame):
 
         image_label = tk.Label(self , image=self.image).pack()
 
+        ip_label = tk.Label(self , text = "IP" , font = 'Helvetica 18 bold')
+        ip_label.place(x=135, y=210)
+
+        self.ip_space = tk.Entry(self)
+        self.ip_space.place(x=50, y=240)
+
         login_label = tk.Label(self , text = "Login" , font = 'Helvetica 18 bold')
-        login_label.place(x = 120 , y = 250)
+        login_label.place(x = 120 , y = 270)
 
         self.login_space = tk.Entry(self)
-        self.login_space.place(x = 50 , y = 280)
+        self.login_space.place(x = 50 , y = 295)
 
         password_label = tk.Label(self , text="Password" , font = 'Helvetica 18 bold' )
-        password_label.place(x = 100 ,y = 320)
+        password_label.place(x = 100 ,y = 330)
 
         self.password_space = tk.Entry(self)
-        self.password_space.place(x = 50 , y = 350)
+        self.password_space.place(x = 50 , y = 360)
 
         self.login_button = tk.Button(self, text="Login", height="2", width="15" , command = lambda : self.GoLogin())
         self.registration_button = tk.Button(self, text="Registration", height="2", width="15" , command =lambda : self.GoRegistration())
 
-        self.login_button.place(x = 80 , y = 400)
-        self.registration_button.place(x = 80 , y = 450)
+        self.login_button.place(x = 80 , y = 420)
+        self.registration_button.place(x = 80 , y = 470)
 
         #self.pack(fill=tk.BOTH, expand=1)
 
