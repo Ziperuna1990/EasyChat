@@ -11,3 +11,5 @@ RUN pip3 install -r requirements.txt
 
 WORKDIR /server_core
 CMD ["gunicorn" , "--bind" , ":8000" , "--threads" , "50" , "server:app"]
+
+#test
