@@ -1,3 +1,0 @@
-python-socketio
-gunicorn
-uvicorn[standard]
