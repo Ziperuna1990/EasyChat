@@ -12,7 +12,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Login Docker Hub
+      env: 
+        DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASS }}
+      run: | 
+        docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
     - name: Build the Docker image
-      run: docker build ./server -t andrurevkach/server_part:latest 
+      run: |
+        docker build ./server -t andrurevkach/server_part:latest 
     - name: Push in Docker Hub
-      run: docker push andrurevkach/server_part:latest
+      run: | 
+        docker push andrurevkach/server_part:latest
