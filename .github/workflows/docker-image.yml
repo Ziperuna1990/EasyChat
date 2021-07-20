@@ -13,4 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build ./server -t server_part 
+      run: docker build ./server -t andrurevkach/server_part:latest 
+    - name: Push in Docker Hub
+      run: docker push andrurevkach/server_part:latest
